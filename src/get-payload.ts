@@ -2,7 +2,6 @@ import dotenv from 'dotenv';
 import path from "path"
 import type { InitOptions } from "payload/config";
 import payload from "payload";
-import { cache } from 'react';
 
 dotenv.config({
     path: path.resolve(__dirname, '../.env')

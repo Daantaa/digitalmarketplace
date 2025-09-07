@@ -1,4 +1,4 @@
-import { buildConfig } from "payload";
+import { buildConfig } from 'payload/config'
 import { mongooseAdapter } from "@payloadcms/db-mongodb";
 import { slateEditor } from "@payloadcms/richtext-slate";
 import {webpackBundler} from "@payloadcms/bundler-webpack";
