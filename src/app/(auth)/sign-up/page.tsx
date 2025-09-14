@@ -1,18 +1,28 @@
-import { Icons } from "@/components/Icons";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
-import { ArrowRight } from "lucide-react";
-import Link from "next/link";
-import React from "react";
+'use client'
+
+import { Icons } from '@/components/Icons'
+import {
+  Button,
+  buttonVariants,
+} from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { cn } from '@/lib/utils'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { ArrowRight } from 'lucide-react'
+import Link from 'next/link'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from "@hookform/resolvers/zod";
-import { AuthCredentialsValidator, TAuthCredentialsValidator } from "@/lib/validators/account-credentials-validator";
-import { trpc } from "@/trpc/client";
+
+import {
+  AuthCredentialsValidator,
+  TAuthCredentialsValidator,
+} from '@/lib/validators/account-credentials-validator'
+import { trpc } from '@/trpc/client'
+import { toast } from 'sonner'
+import { ZodError } from 'zod'
+import { useRouter } from 'next/navigation'
 
 const Page = () => {
-  
   const {
     register,
     handleSubmit,
@@ -21,11 +31,11 @@ const Page = () => {
     resolver: zodResolver(AuthCredentialsValidator),
   })
 
-  const { data } = trpc.anyApiRoute.useQuery();
+  const { mutate, isLoading } = trpc.auth.createPayloadUser.useMutation({});
 
-  const onSubmit = ({email, password}: TAuthCredentialsValidator) => {
-    
-  }
+  const onSubmit = ({ email, password }: TAuthCredentialsValidator) => {
+    mutate({ email, password });
+  };
 
   return (
     <>
@@ -66,6 +76,7 @@ const Page = () => {
                   <Label htmlFor="email">Password</Label>
                   <Input
                     {...register("password")}
+                    type='password'
                     className={cn({
                       "focus-visible:ring-red-500": errors.password,
                     })}
