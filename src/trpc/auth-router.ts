@@ -23,35 +23,61 @@ export const authRouter = router({
           message: "User with this email already exists",
         });
 
-        const user = await payload.create({
-            collection: "users",
-            data: { 
-                email, 
-                password,
-                role: 'user'
-             },
-        })
+      const user = await payload.create({
+        collection: "users",
+        data: {
+          email,
+          password,
+          role: "user",
+        },
+      });
 
-        return {success: true, sentToEmail: email};
+      return { success: true, sentToEmail: email };
     }),
 
-  verifyEmail: publicProcedure.input(z.object({token: z.string()})).query(async ({input}) => {
-    const {token} = input;
+  verifyEmail: publicProcedure
+    .input(z.object({ token: z.string() }))
+    .query(async ({ input }) => {
+      const { token } = input;
 
-    const payload = await getPayloadClient();
+      const payload = await getPayloadClient();
 
-    const isVerified = await payload.verifyEmail({
-      collection: "users",
-      token,
-    });
-
-    if(!isVerified) {
-      throw new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "Email verification failed",
+      const isVerified = await payload.verifyEmail({
+        collection: "users",
+        token,
       });
-    }
 
-    return {success: true};
-  }),
+      if (!isVerified) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Email verification failed",
+        });
+      }
+
+      return { success: true };
+    }),
+
+  signIn: publicProcedure
+    .input(AuthCredentialsValidator)
+    .mutation(async ({ input, ctx }) => {
+      const { email, password } = input;
+      const { res } = ctx;
+
+      const payload = await getPayloadClient();
+
+      try {
+        await payload.login({
+          collection: "users",
+          data: { email, password },
+          res,
+        });
+
+        return { success: true };
+      } catch (error) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Invalid email or password",
+        });
+      }
+    }),
 });
